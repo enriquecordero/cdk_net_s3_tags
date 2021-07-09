@@ -1,9 +1,26 @@
 import * as cdk from '@aws-cdk/core';
+import { Bucket,BucketEncryption } from '@aws-cdk/aws-s3';
+import { Network } from './networking';
+import { Tags } from '@aws-cdk/core';
 
 export class TsCdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const bucket = new Bucket(this, 'DocumentBucket', {
+      encryption: BucketEncryption.S3_MANAGED
+  });
+
+  new cdk.CfnOutput(this,'DocumentBucketExportName',{
+    value: bucket.bucketName,
+    exportName: 'DocumentBucketName'
+  });
+
+  const networkingStack = new Network(this,'NetworkingConstructor',{
+    maxAzs:2
+  })
+
+  Tags.of(networkingStack).add('Module','Networking');
+
   }
 }
